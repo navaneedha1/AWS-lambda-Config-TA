@@ -18,7 +18,7 @@ def lambda_handler(event, context):
             try:
                 test = ['hjLMh88uM8', 'iqdCTZKCUp', '7qGXsKIUw']
 
-                if (checks['id'] in test):
+                if checks['id'] in test:
                     support_client.refresh_trusted_advisor_check(checkId=checks['id'])
                     print('Refreshing check: ' + checks['name'])
                     check_summary = \
@@ -36,17 +36,17 @@ def lambda_handler(event, context):
 
                     if (check_summary['status'] != 'not_available' and checks['id'] == 'hjLMh88uM8' and
                             check_summary['resourcesSummary']['resourcesFlagged'] == 0):
-                        Trigger_notification(check_summary, checks['name'], checks['id'])
+                        trigger_notification(check_summary, checks['name'], checks['id'])
 
 
                     elif (check_summary['status'] != 'not_available' and checks['id'] == 'iqdCTZKCUp' and
                           check_summary['resourcesSummary']['resourcesFlagged'] > 0):
-                        Trigger_notification(check_summary, checks['name'], checks['id'])
+                        trigger_notification(check_summary, checks['name'], checks['id'])
 
 
                     elif (check_summary['status'] != 'not_available' and checks['id'] == '7qGXsKIUw' and
                           check_summary['resourcesSummary']['resourcesFlagged'] > 0):
-                        Trigger_notification(check_summary, checks['name'], checks['id'])
+                        trigger_notification(check_summary, checks['name'], checks['id'])
 
 
             except ClientError:
@@ -58,11 +58,11 @@ def lambda_handler(event, context):
         traceback.print_exc()
 
 
-def Trigger_notification(detailed_check, check_name, checks_id):
+def trigger_notification(detailed_check, check_name, checks_id):
     result = support_client.describe_trusted_advisor_check_result(checkId=checks_id, language='en')
     flagResources = result['result']['flaggedResources']
     response = sns.publish(
-        TopicArn=os.environ['TOPIC_ARN'],
+        TopicArn='arn:aws:sns:us-west-2:810835092760:Push_notification',
         Subject=check_name,
         Message=str(flagResources)
     )
